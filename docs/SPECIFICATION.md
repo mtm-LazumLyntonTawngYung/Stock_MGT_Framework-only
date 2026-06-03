@@ -69,12 +69,11 @@ Create a secure login system with:
 | Price | Total price (sum of 3 purchases) |
 | Opening Qty | Starting quantity for the month |
 | 1st/2nd/3rd Purchase Qty | Quantities purchased |
-| 1st/2nd Price | Price for each purchase |
+| Price (1st/2nd/3rd) | Price for each purchase slot |
 | Total Purchase | Sum of all purchase quantities |
 | Used Qty (Week 1-5) | Weekly usage amounts |
 | Total Used | Sum of all weekly usage |
 | Closing Qty | `opening + total_purchase - total_used` |
-| Remark | Notes field |
 | Action | Edit/Delete buttons (when editable) |
 
 #### Calculations
@@ -165,7 +164,7 @@ When adding/editing a product:
 ### users table
 
 ```sql
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
   email VARCHAR(255) UNIQUE NOT NULL,
@@ -181,7 +180,7 @@ CREATE TABLE users (
 ### category table (self-referencing)
 
 ```sql
-CREATE TABLE category (
+CREATE TABLE IF NOT EXISTS category (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
   minimum_threshold INT DEFAULT 0,
@@ -197,7 +196,7 @@ CREATE TABLE category (
 ### month table
 
 ```sql
-CREATE TABLE month (
+CREATE TABLE IF NOT EXISTS month (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   month TINYINT NOT NULL CHECK (month BETWEEN 1 AND 12),
   year SMALLINT NOT NULL,
@@ -209,19 +208,17 @@ CREATE TABLE month (
 ### monthly_stock_data table
 
 ```sql
-CREATE TABLE monthly_stock_data (
+CREATE TABLE IF NOT EXISTS monthly_stock_data (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   month_id BIGINT NOT NULL,
   category_id BIGINT NOT NULL,
   opening_qty INT DEFAULT 0,
   closing_qty INT DEFAULT 0,
-  purchase_1st_qty INT DEFAULT 0,
-  purchase_2nd_qty INT DEFAULT 0,
-  purchase_3rd_qty INT DEFAULT 0,
-  is_active BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
   deleted_at TIMESTAMP NULL,
+  created_by BIGINT null,
+  updated_by BIGINT null,
   FOREIGN KEY (month_id) REFERENCES month(id) ON DELETE CASCADE,
   FOREIGN KEY (category_id) REFERENCES category(id) ON DELETE CASCADE,
   UNIQUE KEY unique_monthly_category (month_id, category_id)
@@ -231,7 +228,7 @@ CREATE TABLE monthly_stock_data (
 ### weekly_stock_check table
 
 ```sql
-CREATE TABLE weekly_stock_check (
+CREATE TABLE IF NOT EXISTS weekly_stock_check (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   month_id BIGINT NOT NULL,
   category_id BIGINT NOT NULL,
@@ -245,7 +242,8 @@ CREATE TABLE weekly_stock_check (
   checked_week_3 BOOLEAN DEFAULT FALSE,
   checked_week_4 BOOLEAN DEFAULT FALSE,
   checked_week_5 BOOLEAN DEFAULT FALSE,
-  is_active BOOLEAN DEFAULT TRUE,
+  created_by BIGINT null,
+  updated_by BIGINT null,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
   deleted_at TIMESTAMP NULL,
@@ -257,26 +255,23 @@ CREATE TABLE weekly_stock_check (
 ### purchases table
 
 ```sql
-CREATE TABLE purchases (
+CREATE TABLE IF NOT EXISTS purchases (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   monthly_stock_id BIGINT NULL,
   category_id BIGINT NOT NULL,
-  subcategory_id BIGINT NULL,
   purchase_date DATE NOT NULL,
   quantity INT NOT NULL,
+  purchase_price DECIMAL(10,2) DEFAULT 0.00,
+  discount_price DECIMAL(10,2) DEFAULT 0.00,
+  quantity_per_unit INT DEFAULT 1,
   unit_price DECIMAL(10,2) NOT NULL,
   discount_amount DECIMAL(10,2) DEFAULT 0.00,
-  total_amount DECIMAL(10,2) GENERATED ALWAYS AS ((quantity * unit_price) - discount_amount) STORED,
-  quantity_per_unit INT DEFAULT 1,
-  price DECIMAL(10,2) DEFAULT 0.00,
-  price_1st DECIMAL(10,2) DEFAULT 0.00,
-  price_2nd DECIMAL(10,2) DEFAULT 0.00,
-  price_3rd DECIMAL(10,2) DEFAULT 0.00,
+  created_by BIGINT null,
+  updated_by BIGINT null,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (monthly_stock_id) REFERENCES monthly_stock_data(id) ON DELETE SET NULL,
-  FOREIGN KEY (category_id) REFERENCES category(id) ON DELETE CASCADE,
-  FOREIGN KEY (subcategory_id) REFERENCES category(id) ON DELETE SET NULL
+  FOREIGN KEY (category_id) REFERENCES category(id) ON DELETE CASCADE
 );
 ```
 

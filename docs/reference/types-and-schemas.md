@@ -60,42 +60,15 @@ interface MonthlyStockData {
   category_id: number;
   opening_qty: number;
   closing_qty: number;
-  purchase_1st_qty: number;
-  purchase_2nd_qty: number;
-  purchase_3rd_qty: number;
-  is_active: boolean;
+  minimum_threshold?: number;
+  created_by?: number | null;
+  updated_by?: number | null;
   created_at: string;
   updated_at?: string | null;
   deleted_at?: string | null;
   // Additional JOINed fields from API response:
   itemDescription?: string;
   categoryName?: string;
-  minimum_threshold?: number;
-  // Pivoted purchase fields (returned by GET /api/products):
-  price_1st?: number;
-  price_2nd?: number;
-  price_3rd?: number;
-  unit_price_1st?: number;
-  unit_price_2nd?: number;
-  unit_price_3rd?: number;
-  discount_amount_1st?: number;
-  // … _2nd, _3rd variants
-  quantity_per_unit_1st?: number;
-  // … _2nd, _3rd variants
-  purchase_date_1st?: string;
-  purchase_date_2nd?: string;
-  purchase_date_3rd?: string;
-  // Weekly check fields (joined LEFT JOIN weekly_stock_check):
-  used_qty_1st_week?: number;
-  used_qty_2nd_week?: number;
-  used_qty_3rd_week?: number;
-  used_qty_4th_week?: number;
-  used_qty_5th_week?: number;
-  checked_week_1?: boolean;
-  checked_week_2?: boolean;
-  checked_week_3?: boolean;
-  checked_week_4?: boolean;
-  checked_week_5?: boolean;
 }
 ```
 
@@ -131,17 +104,13 @@ interface Purchase {
   id: number;
   monthly_stock_id?: number | null;
   category_id: number;
-  subcategory_id?: number | null;
   purchase_date: string;        // "YYYY-MM-DD"
   quantity: number;
+  purchase_price: number;
   unit_price: number;
   quantity_per_unit: number;
   discount_amount: number;
-  price: number;
-  total_amount?: number;        // GENERATED column: (quantity * unit_price) - discount
-  price_1st?: number;
-  price_2nd?: number;
-  price_3rd?: number;
+  discount_price: number;
   created_by?: number | null;
   updated_by?: number | null;
   created_at: string;
@@ -240,7 +209,8 @@ Same as create, but `parentId` is not allowed (parent cannot be changed after cr
   quantityPerUnit: number >= 0,
   unitPrice: number >= 0,
   discountAmount: number >= 0,
-  price: number >= 0,
+  purchasePrice: number >= 0,
+  discountPrice?: number >= 0,
   purchaseDate: string (YYYY-MM-DD) | ''
 }
 ```
@@ -259,9 +229,11 @@ Combines all stock fields plus 3 purchase info groups (1st, 2nd, 3rd). Key const
   purchase_date: string matching /^\d{4}-\d{2}-\d{2}$/ (required),
   quantity: positive number (required),
   unit_price: number >= 0,
-  price: number >= 0,
+  purchase_price: number >= 0,
+  discount_price?: number >= 0,
   discount_amount: number >= 0 (optional),
-  quantity_per_unit: positive number (optional)
+  quantity_per_unit: positive number (optional),
+  monthly_stock_id?: positive integer | null
 }
 ```
 

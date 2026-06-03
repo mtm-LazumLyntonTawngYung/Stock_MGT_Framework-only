@@ -426,10 +426,8 @@ CREATE TABLE monthly_stock_data (
   category_id BIGINT NOT NULL,
   opening_qty INT DEFAULT 0,
   closing_qty INT DEFAULT 0,
-  purchase_1st_qty INT DEFAULT 0,
-  purchase_2nd_qty INT DEFAULT 0,
-  purchase_3rd_qty INT DEFAULT 0,
-  is_active BOOLEAN DEFAULT TRUE,
+  created_by BIGINT NULL,
+  updated_by BIGINT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
   deleted_at TIMESTAMP NULL,
@@ -442,22 +440,20 @@ CREATE TABLE purchases (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   monthly_stock_id BIGINT NULL,
   category_id BIGINT NOT NULL,
-  subcategory_id BIGINT NULL,
   purchase_date DATE NOT NULL,
   quantity INT NOT NULL,
+  purchase_price DECIMAL(10,2) NOT NULL,
   unit_price DECIMAL(10,2) NOT NULL,
-  discount_amount DECIMAL(10,2) DEFAULT 0.00,
-  total_amount DECIMAL(10,2) GENERATED ALWAYS AS ((quantity * unit_price) - discount_amount) STORED,
   quantity_per_unit INT DEFAULT 1,
-  price DECIMAL(10,2) DEFAULT 0.00,
-  price_1st DECIMAL(10,2) DEFAULT 0.00,
-  price_2nd DECIMAL(10,2) DEFAULT 0.00,
-  price_3rd DECIMAL(10,2) DEFAULT 0.00,
+  discount_amount DECIMAL(10,2) DEFAULT 0.00,
+  discount_price DECIMAL(10,2) DEFAULT 0.00,
+  created_by BIGINT NULL,
+  updated_by BIGINT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
+  deleted_at TIMESTAMP NULL,
   FOREIGN KEY (monthly_stock_id) REFERENCES monthly_stock_data(id) ON DELETE SET NULL,
-  FOREIGN KEY (category_id) REFERENCES category(id) ON DELETE CASCADE,
-  FOREIGN KEY (subcategory_id) REFERENCES category(id) ON DELETE SET NULL
+  FOREIGN KEY (category_id) REFERENCES category(id) ON DELETE CASCADE
 );
 
 CREATE TABLE weekly_stock_check (
@@ -474,7 +470,8 @@ CREATE TABLE weekly_stock_check (
   checked_week_3 BOOLEAN DEFAULT FALSE,
   checked_week_4 BOOLEAN DEFAULT FALSE,
   checked_week_5 BOOLEAN DEFAULT FALSE,
-  is_active BOOLEAN DEFAULT TRUE,
+  created_by BIGINT NULL,
+  updated_by BIGINT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
   deleted_at TIMESTAMP NULL,
@@ -599,7 +596,6 @@ Create `src/lib/month-edit-server.ts` (used by API routes to enforce read-only r
 ```typescript
 import { NextResponse } from 'next/server';
 import pool from '@/lib/db';
-import { getCurrentUserId } from './auth-utils';
 import { isMonthEditable, isMonthAddable } from './stock-utils';
 
 export async function requireMonthEditable(monthId: number): Promise<NextResponse | null> {
@@ -668,7 +664,8 @@ Requirements:
 | `purchase_date` | string (YYYY-MM-DD) | Yes |
 | `quantity` | number | Yes (> 0) |
 | `unit_price` | number | Yes |
-| `price` | number | Yes |
+| `purchase_price` | number | Yes |
+| `discount_price` | number | No |
 | `discount_amount` | number | No |
 | `quantity_per_unit` | number | Yes (> 0) |
 | `monthly_stock_id` | number | No |
