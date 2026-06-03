@@ -6,18 +6,17 @@
 
 ## Overview
 
-The database has 6 tables organized around a central `category` entity. All tables use soft deletion (`deleted_at`), an "editable" flag (`is_active`), and standard audit timestamps (`created_at`, `updated_at`).
+The database has 5 core tables (`users`, `category`, `month`, `monthly_stock_data`, `purchases`) plus the `weekly_stock_check` table. All tables use soft deletion (`deleted_at`) and standard audit timestamps (`created_at`, `updated_at`).
 
 ```
-users ──────┐
-            │
-category ───┼──→ monthly_stock_data ─┐
-            │                          │
-            └──→ purchases ────────────┘
-                       │
-            month ←───┘
-                       │
-             weekly_stock_check
+users ──────────┐
+                │
+category ───────┼──→ monthly_stock_data ────→ purchases
+                │
+                └──→ weekly_stock_check
+
+month ──────────┼──→ monthly_stock_data
+                └──→ weekly_stock_check
 ```
 
 ---
@@ -25,40 +24,45 @@ category ───┼──→ monthly_stock_data ─┐
 ## Entity Relationship Diagram
 
 ```
-┌──────────┐       ┌───────────────────┐       ┌──────────────────────┐
-│  users   │       │      month        │       │   weekly_stock_check │
-├──────────┤       ├───────────────────┤       ├──────────────────────┤
-│ id (PK)  │       │ id (PK)           │       │ id (PK)              │
-│ name     │       │ month  (1-12)     │       │ month_id   (FK→month)│
-│ email    │       │ year              │       │ category_id(FK→cat)  │
-│ password │       │ created_at        │       │ used_qty_1st..5th    │
-│ status   │       │ UNIQUE(month,year)│       │ checked_week_1..5    │
-│ ...      │       └───────────────────┘       │ is_active            │
-└──────────┘                                      │ created_at           │
-                                                  │ updated_at           │
-                                                  │ deleted_at           │
-                                                  └──────────────────────┘
+┌──────────┐       ┌──────────────────────┐       ┌───────────────────────┐
+│  users   │       │        month         │       │  weekly_stock_check  │
+├──────────┤       ├──────────────────────┤       ├───────────────────────┤
+│ id (PK)  │       │ id (PK)              │       │ id (PK)               │
+│ name     │       │ month (1–12, CHECK)  │       │ month_id (FK→month)   │
+│ email    │       │ year                 │       │ category_id (FK→cat)  │
+│ password │       │ created_at           │       │ used_qty_1st_week     │
+│ status   │       │ UNIQUE(month, year)  │       │ used_qty_2nd_week     │
+│ last_login│      └──────────────────────┘       │ used_qty_3rd_week     │
+│ created_at│                                      │ used_qty_4th_week     │
+│ updated_at│                                      │ used_qty_5th_week     │
+│ deleted_at│                                      │ checked_week_1..5     │
+└──────────┘                                      │ created_by (FK→users) │
+                                                  │ updated_by (FK→users) │
+                                                  │ created_at             │
+                                                  │ updated_at             │
+                                                  │ deleted_at             │
+                                                  └───────────────────────┘
          │
          │ 1:N (parent→child)
          ▼
-┌─────────────────┐       ┌──────────────────────┐       ┌──────────────────┐
-│    category     │       │  monthly_stock_data  │       │    purchases     │
-├─────────────────┤       ├──────────────────────┤       ├──────────────────┤
-│ id (PK)         │       │ id (PK)              │       │ id (PK)          │
-│ name            │       │ month_id   (FK→month)│       │ monthly_stock_id │
-│ parent_id (FK→  │       │ category_id(FK→cat)  │       │   (FK→mthly_stk) │
-│   category.id)  │       │ opening_qty          │       │ category_id (FK) │
-│ minimum_thresh. │       │ closing_qty          │       │ purchase_date    │
-│ remark          │       │ purchase_1st_qty     │       │ quantity         │
-│ created_at      │       │ purchase_2nd_qty     │       │ unit_price       │
-│ updated_at      │       │ purchase_3nd_qty     │       │ discount_amount  │
-│ deleted_at      │       │ is_active            │       │ total_amount(GEN)│
-└─────────────────┘       │ created_by (FK→users)│       │ price_1st/2nd/3rd│
-                          │ updated_by (FK→users)│       │ quantity_per_unit│
-                          │ UNIQUE(month_id,      │       │ quantity_per_unit│
-                          │   category_id)        │       │ created_at       │
-                          └──────────────────────┘       │ updated_at       │
-                                                          └──────────────────┘
+┌──────────────────────┐       ┌──────────────────────────┐       ┌────────────────────────────┐
+│      category        │       │   monthly_stock_data     │       │         purchases          │
+├──────────────────────┤       ├──────────────────────────┤       ├────────────────────────────┤
+│ id (PK)              │       │ id (PK)                  │       │ id (PK)                    │
+│ name                 │       │ month_id (FK→month)      │       │ monthly_stock_id (FK→msd)  │
+│ minimum_threshold    │       │ category_id (FK→cat)     │       │ category_id (FK→cat)       │
+│ remark               │       │ opening_qty              │       │ purchase_date              │
+│ parent_id (FK→cat)   │       │ closing_qty              │       │ quantity                   │
+│ created_at           │       │ created_by (FK→users)    │       │ purchase_price             │
+│ updated_at           │       │ updated_by (FK→users)    │       │ discount_price             │
+│ deleted_at           │       │ created_at               │       │ quantity_per_unit          │
+└──────────────────────┘       │ updated_at               │       │ unit_price                 │
+                               │ deleted_at               │       │ discount_amount            │
+                               │ UNIQUE(month_id,         │       │ created_by (FK→users)      │
+                               │   category_id)           │       │ updated_by (FK→users)      │
+                               └──────────────────────────┘       │ created_at                 │
+                                                                  │ updated_at                 │
+                                                                  └────────────────────────────┘
 ```
 
 ---
@@ -78,7 +82,7 @@ Stores login account information.
 | `status` | ENUM('active','inactive') | DEFAULT 'active' | Controls account access |
 | `last_login` | TIMESTAMP | NULLABLE | Updated on each successful login |
 | `created_at` | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | |
-| `updated_at` | TIMESTAMP | NULL, auto-updated | On UPDATE trigger |
+| `updated_at` | TIMESTAMP | NULL, ON UPDATE CURRENT_TIMESTAMP | |
 | `deleted_at` | TIMESTAMP | NULLABLE | Soft delete marker |
 
 **Indexes:** `email` (implicit unique index).
@@ -97,12 +101,12 @@ Represents item types organized in a parent-child hierarchy.
 | `remark` | TEXT | NULLABLE | Optional description |
 | `parent_id` | BIGINT | NULLABLE, FK → category(id) ON DELETE SET NULL | NULL = root category |
 | `created_at` | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | |
-| `updated_at` | TIMESTAMP | NULL, auto-updated | |
+| `updated_at` | TIMESTAMP | NULL, ON UPDATE CURRENT_TIMESTAMP | |
 | `deleted_at` | TIMESTAMP | NULLABLE | Soft delete marker |
 
 **Indexes:** `parent_id`.
 
-**Self-referencing relationship:** `parent_id` can reference another row in the same table. SET NULL means deleting a parent does not delete children — they become root categories.
+**Self-referencing relationship:** `parent_id` can reference another row in the same table. `ON DELETE SET NULL` means deleting a parent does not delete children — they become root categories.
 
 ---
 
@@ -117,13 +121,13 @@ Represents a calendar month in the system.
 | `year` | SMALLINT | NOT NULL | 4-digit year |
 | `created_at` | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | |
 
-**Indexes:** `UNIQUE(month, year)` — prevents duplicate month entries (`CREATE UNIQUE KEY unique_month_year (month, year)`).
+**Indexes:** `UNIQUE(month, year)` — prevents duplicate month entries.
 
 ---
 
 ### `monthly_stock_data`
 
-Core table. One row per category per month containing all stock figures.
+Core table. One row per category per month containing opening and closing stock quantities.
 
 | Column | Type | Constraints | Notes |
 |--------|------|-------------|-------|
@@ -132,17 +136,17 @@ Core table. One row per category per month containing all stock figures.
 | `category_id` | BIGINT | NOT NULL, FK → category(id) ON DELETE CASCADE | Which product category |
 | `opening_qty` | INT | DEFAULT 0 | Starting quantity at month start |
 | `closing_qty` | INT | DEFAULT 0 | Calculated; also stored here |
-| `purchase_1st_qty` | INT | DEFAULT 0 | Quantity from first purchase |
-| `purchase_2nd_qty` | INT | DEFAULT 0 | Quantity from second purchase |
-| `purchase_3rd_qty` | INT | DEFAULT 0 | Quantity from third purchase |
-| `is_active` | BOOLEAN | DEFAULT TRUE | |
+| `created_by` | BIGINT | NULLABLE, FK → users(id) | Who created this record |
+| `updated_by` | BIGINT | NULLABLE, FK → users(id) | Who last updated this record |
 | `created_at` | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | |
-| `updated_at` | TIMESTAMP | NULL, auto-updated | |
+| `updated_at` | TIMESTAMP | NULL, ON UPDATE CURRENT_TIMESTAMP | |
 | `deleted_at` | TIMESTAMP | NULLABLE | Soft delete |
 
-**Indexes:** `UNIQUE(month_id, category_id)` — there must be exactly one stock record per category per month.
+**Indexes:** `UNIQUE(month_id, category_id)` — exactly one stock record per category per month.
 
-**ON DELETE CASCADE on `month_id`:** When a month is deleted (soft-delete: `deleted_at` is set), the `monthly_stock_data` rows for that month are also soft-deleted via application logic.
+**ON DELETE CASCADE:** When a month row is deleted, all its `monthly_stock_data` rows are automatically deleted.
+
+> **Note:** Purchase quantities and weekly usage data are stored in `purchases` and `weekly_stock_check` respectively, not in this table. The UI displays them together via a joined query.
 
 ---
 
@@ -165,10 +169,11 @@ Tracks week-by-week consumption for each category in a month.
 | `checked_week_3` | BOOLEAN | DEFAULT FALSE | |
 | `checked_week_4` | BOOLEAN | DEFAULT FALSE | |
 | `checked_week_5` | BOOLEAN | DEFAULT FALSE | |
-| `is_active` | BOOLEAN | DEFAULT TRUE | |
+| `created_by` | BIGINT | NULLABLE, FK → users(id) | |
+| `updated_by` | BIGINT | NULLABLE, FK → users(id) | |
 | `created_at` | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | |
-| `updated_at` | TIMESTAMP | NULL, auto-updated | |
-| `deleted_at` | TIMESTAMP | NULLABLE | |
+| `updated_at` | TIMESTAMP | NULL, ON UPDATE CURRENT_TIMESTAMP | |
+| `deleted_at` | TIMESTAMP | NULLABLE | Soft delete |
 
 ---
 
@@ -181,21 +186,17 @@ Records individual purchase transactions. Up to 3 purchases per `monthly_stock_d
 | `id` | BIGINT | PRIMARY KEY, AUTO_INCREMENT | |
 | `monthly_stock_id` | BIGINT | NULLABLE, FK → monthly_stock_data(id) ON DELETE SET NULL | Links back to stock row |
 | `category_id` | BIGINT | NOT NULL, FK → category(id) ON DELETE CASCADE | |
-| `subcategory_id` | BIGINT | NULLABLE, FK → category(id) ON DELETE SET NULL | Optional sub-category |
 | `purchase_date` | DATE | NOT NULL | Date of purchase |
 | `quantity` | INT | NOT NULL | Units purchased |
-| `unit_price` | DECIMAL(10,2) | NOT NULL | Price per unit |
-| `discount_amount` | DECIMAL(10,2) | DEFAULT 0.00 | Discount applied |
-| `total_amount` | DECIMAL(10,2) | GENERATED ALWAYS STORED | = (quantity × unit_price) − discount |
+| `purchase_price` | DECIMAL(10,2) | DEFAULT 0.00 | Total purchase price |
+| `discount_price` | DECIMAL(10,2) | DEFAULT 0.00 | Price after discount |
 | `quantity_per_unit` | INT | DEFAULT 1 | E.g. units per carton |
-| `price` | DECIMAL(10,2) | DEFAULT 0.00 | Total line price (kept for backward compat) |
-| `price_1st` | DECIMAL(10,2) | DEFAULT 0.00 | Aligned with 1st purchase slot |
-| `price_2nd` | DECIMAL(10,2) | DEFAULT 0.00 | Aligned with 2nd purchase slot |
-| `price_3rd` | DECIMAL(10,2) | DEFAULT 0.00 | Aligned with 3rd purchase slot |
+| `unit_price` | DECIMAL(10,2) | NOT NULL | Price per single unit |
+| `discount_amount` | DECIMAL(10,2) | DEFAULT 0.00 | Discount applied |
+| `created_by` | BIGINT | NULLABLE, FK → users(id) | |
+| `updated_by` | BIGINT | NULLABLE, FK → users(id) | |
 | `created_at` | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP | |
-| `updated_at` | TIMESTAMP | NULL, auto-updated | |
-
-**Generated column:** `total_amount` is computed by MySQL and cannot be written to — do not include it in INSERT/UPDATE statements.
+| `updated_at` | TIMESTAMP | NULL, ON UPDATE CURRENT_TIMESTAMP | |
 
 **Up to 3 purchases per monthly stock row** are identified by a `ROW_NUMBER()` partition in the API query (`pr` subquery in `GET /api/products`), sorted by `purchase_date ASC, id ASC`.
 
@@ -207,8 +208,10 @@ Records individual purchase transactions. Up to 3 purchases per `monthly_stock_d
 2. **Monthly stock creation:** When a month is created, the previous calendar month's closing quantities are copied as `opening_qty` for each category in the new month.
 3. **Closing quantity calculation:**
    ```
-   closing_qty = opening_qty + purchase_1st_qty + purchase_2nd_qty + purchase_3rd_qty
-                - used_qty_1st_week - used_qty_2nd_week - used_qty_3rd_week
-                - used_qty_4th_week - used_qty_5th_week
+   closing_qty = opening_qty
+               + purchase_1st_qty + purchase_2nd_qty + purchase_3rd_qty
+               - used_qty_1st_week - used_qty_2nd_week - used_qty_3rd_week
+               - used_qty_4th_week - used_qty_5th_week
    ```
+   The purchase quantities and usage figures are joined from `purchases` and `weekly_stock_check` at query time.
 4. **Only latest 2 months writable:** See the Explanation chapter on Read-Only Logic for the policy.
