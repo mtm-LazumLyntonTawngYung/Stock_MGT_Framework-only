@@ -23,7 +23,7 @@ monthly_stock_data (အဓိက)
 | Sr. | Num | Num |
 | Item Description | `category.name` | category name |
 | Price | `purchases.discount_price` | ဝယ်ဈေး |
-| Opening Qty | `monthly_stock_data.opening_qty` | လအစမှာ 0 (ပြီးခဲ့တဲ့လရဲ့ closing qty ကနောက်လရဲ့ opening qty) |
+| Opening Qty |  | လအစမှာ 0 (ပြီးခဲ့တဲ့လရဲ့ closing qty ကနောက်လရဲ့ opening qty) |
 | Purchase 1st/2nd/3rd | `purchases.quantity` | ဝယ်ယူမှု ၃ ကြိမ် |
 | Total Purchase | `Total Purchase Formula` | purchase ၃ ခု ပေါင်း |
 | Used Qty (Week 1-5) | `weekly_stock_check` table (Week 1-5) | အပတ်စဉ် သုံးစွဲပမာဏ |
@@ -73,7 +73,7 @@ Unit Price     = (price - discount) / (purchaseQty * quantityPerUnit)
 
 **သတိထားရမှာ:**
 - current month မှာပဲ ဖျက်လို့ရတယ်
-- opening qty 0, total purchase 0 ဖြစ်မှပဲ ဖျက်လို့ရတယ်
+- opening qty 0, total purchase 0 ဖြစ်မှပဲ ဖျက်လို့ရတယ် (မဟုတ်ရင် button disable ဖစ်နေမယ်)
 
 ### 5. Stock Check Page
 
@@ -89,24 +89,21 @@ Unit Price     = (price - discount) / (purchaseQty * quantityPerUnit)
 
 **စစ်ဆေးချက်:** သုံးစွဲပမာဏ စုစုပေါင်းက (opening + purchases) ထက် မကျော်ရဘူး။
 
-## Edit လုပ်ခွင့်/မလုပ်ခွင့် စည်းမျဉ်းတွေ
-
-### နောက်ဆုံးလ + အရင်လ ပဲ Edit လုပ်လို့ရတယ်
-### နောက်ဆုံးလ ပဲ ကုန်ပစ္စည်း အသစ် ထည့်လို့ရတယ်
-### ပြီးခဲ့ပြီးသား month တွေကို Read-only
-
-ပြီးခဲ့တဲ့ month တွေမှာ data တွေကို ပြန်ကြည့်လို့ရပေမယ့် ပြင်တာ၊ ထည့်တာ၊ ဖျက်တာ ဘာမှ လုပ်လို့ မရဘူး။
-
----
 
 ## အရေးကြီးတဲ့ Business Rules
 
 1. **Closing Quantity တွက်ပုံ:** `opening_qty + total_purchase - total_used`
+
 2. **Month အသစ်မှာ Opening Qty ပုံသေနည်း:** ပြီးခဲ့တဲ့လရဲ့ `closing_qty` ကို အလိုအလျောက် ယူတယ်
+
 3. **Edit လုပ်လို့ရတဲ့လ:** နောက်ဆုံးလ နဲ့ အရင်လ ပဲ (current month & previous month)
+
 4. **ကုန်ပစ္စည်း အသစ်ထည့်လို့ရတဲ့လ:** နောက်ဆုံးလ ပဲ (current month only)
+
 5. **သုံးစွဲပမာဏ ကန့်သတ်ချက်:** Opening + Purchase ထက် မကျော်ရဘူး
+
 6. **Soft Delete:** Data တွေကို ဖျက်တာထက် `deleted_at` field ကို set လုပ်တယ်
+
 7. **ပြီးခဲ့တဲ့လ ပြန်ပြင်လို့မရ:** လက်ရှိလနဲ့ အရင်လကို ပြန်ပြင်ရင် နောက်လရဲ့ opening_qty ကို အလိုအလျောက် ပြန်ညှိပေးတယ်
 
 ---
