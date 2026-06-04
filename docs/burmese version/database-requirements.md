@@ -3,8 +3,7 @@
 **Project:** Stock Management System  
 **Database:** MySQL  
 **Migration Files:** 
-- `src/lib/migrations/01-create-tables.sql`
-- `src/lib/migrations/02-seed-data.sql`
+
 
 ---
 
