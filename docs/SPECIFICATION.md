@@ -66,7 +66,7 @@ Create a secure login system with:
 | Column | Description |
 |--------|-------------|
 | Item Description | Product/category name |
-| Price | Total price (sum of 3 purchases) |
+| Price | Total price (sum of 3 purchases) - discount |
 | Opening Qty | Starting quantity for the month |
 | 1st/2nd/3rd Purchase Qty | Quantities purchased |
 | Price (1st/2nd/3rd) | Price for each purchase slot |
