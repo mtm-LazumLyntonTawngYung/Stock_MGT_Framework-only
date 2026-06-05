@@ -28,3 +28,22 @@ Active ဖြစ်သော member များ Inactive ဖြစ်သော 
 
 ### 5. Search Filter
 - User Email/Name အသုံးပြုပြီး search filter ကို လုပ်ဆောင်နိုင်ရမည်။
+
+### 6. Skeleton Page
+
+- User list များမရှိနေချိန်မှာ `No users found No users in the system` ကို table တွင် display ပြထားပေးပါ။
+
+---
+
+## Error Handling
+
+| အခြေအနေ | တုံ့ပြန်ချက် |
+|---|---|
+| မိမိ login ၀င်ထားသောအကောင့်ကို ဖျက်မိပါက | "You cannot delete your own account.
+e" toast error |
+| password field empty ဖြစ်လျှင် | "Please fill out this field"  |
+| email format   | "please include an @ in the email address" မက်ဆေ့ချ် ပြသည် |
+| User create success/unsuccess ဖြစ် လျှင် message ပြရန် | "User created successfully/ User Creation Failed" |
+| Existing Email/User | "Email already Exist" toaster message ပြရန်|
+
+---
