@@ -22,7 +22,7 @@ monthly_stock_data (အဓိက)
 |---|---|---|
 | Sr. | Num | Num |
 | Item Description | `category.name` | category name |
-| Price | `purchases.discount_price` | ဝယ်ဈေး |
+| Price | `purchases.discount_price` | ဝယ်ယူမှု ၃ ကြိမ်‌ပေါင်းပီးပြ |
 | Opening Qty |  | လအစမှာ 0 (ပြီးခဲ့တဲ့လရဲ့ closing qty ကနောက်လရဲ့ opening qty) |
 | Purchase 1st/2nd/3rd | `purchases.quantity` | ဝယ်ယူမှု ၃ ကြိမ် |
 | Total Purchase | `Total Purchase Formula` | purchase ၃ ခု ပေါင်း |
@@ -37,7 +37,7 @@ monthly_stock_data (အဓိက)
 Total Purchase = purchaseQty1st + purchaseQty2nd + purchaseQty3rd
 Total Used     = usedQty1stWeek + usedQty2ndWeek + usedQty3rdWeek + usedQty4thWeek + usedQty5thWeek
 Closing Qty    = openingQty + totalPurchase - totalUsed
-Unit Price     = (price - discount) / (purchaseQty * quantityPerUnit)
+Unit Price     = (purchasePrice - discount) / (purchaseQty * quantityPerUnit)
 ```
 
 #### ကုန်ပစ္စည်း ထည့်သွင်းခြင် (Add Product)
@@ -51,7 +51,7 @@ Unit Price     = (price - discount) / (purchaseQty * quantityPerUnit)
    - `purchases` table မှာ ဝယ်ယူမှု ၃ ခုအထိ insert လုပ်တယ်
 6. အောင်မြင်ရင် alert message ပြတယ်
 
-**သတိထားရမှာ:** နောက်ဆုံး month မှာပဲ ကုန်ပစ္စည်း အသစ် ထည့်လို့ရတယ်။
+**သတိထားရမှာ:** နောက်ဆုံး month (current month) မှာပဲ ကုန်ပစ္စည်း အသစ် ထည့်လို့ရတယ်။
 
 #### ကုန်ပစ္စည်း ပြင်ဆင်ခြင် (Edit Product)
 
@@ -104,6 +104,6 @@ Unit Price     = (price - discount) / (purchaseQty * quantityPerUnit)
 
 6. **Soft Delete:** Data တွေကို ဖျက်တာထက် `deleted_at` field ကို set လုပ်တယ်
 
-7. **ပြီးခဲ့တဲ့လ ပြန်ပြင်လို့မရ:** လက်ရှိလနဲ့ အရင်လကို ပြန်ပြင်ရင် နောက်လရဲ့ opening_qty ကို အလိုအလျောက် ပြန်ညှိပေးတယ်
+7. **ပြီးခဲ့တဲ့လ edit လုပ်ရင်:** လက်ရှိလ (current month) ရဲ့ opening_qty ကို အလိုအလျောက် ပြန်ညှိပေးတယ်
 
 ---
