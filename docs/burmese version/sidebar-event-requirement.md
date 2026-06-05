@@ -9,7 +9,7 @@
 Sidebar သည် `AuthenticatedLayout` အတွင် ပါဝင်ပြီး အောက်ပါ အလုပ်များကို ပြုလုပ်သည် -
 - id ဝင်ထားသူများအတွက် လိုအပ်သော အဓိက စာမျက်နှာများအားလုံးကို ပြသခြင်း
 - လက်ရှိ login page ပြီးလျှင် စာမျက်နှာကို ပြသခြင်း
-- အကျယ်အဝန်းကို လျှော့ခြင်း/ချဲ့ကြည့်ခြင်း
+- sidebar column အကျယ်အဝန်းကို  လျှော့ခြင်း/ချဲ့ကြည့်ခြင်း
 - လက်ရှိ ဝင်ရောက်နေသော အသုံးပြုသူ၏ အမည်နှင့် အီးမေလ်ကို ပြသခြင်း
 - Change Password နှင့် Logout လုပ်ဆောင်ချက်များကို ပြသခြင်း
 
@@ -71,7 +71,7 @@ Sidebar menu သည် static `NavItem` array အဖြစ် သတ်မှတ
 
 ### 2. Navigate to Dashboard
 - **Trigger:** "Dashboard" menu item ကို click လုပ်ခြင်း
-- **Action:** Click handler ထဲမှာ `setStockNavSource('dashboard')` ကို သော်လျှက် သုံးစွဲထားသည်။
+- **Action:** Click handler ထဲမှာ `setStockNavSource('dashboard')` ကို  သုံးစွဲထားသည်။
 - **Result:** Dashboard menu item active ဖြစ်သည်။ ပြီးခြင်း `/stock/[year]/[month]` သို့ သွားလာခြင်း အခါ Dashboard active ဖြစ်နေဆဲသလို ဆက်လက်ပြသသည်။
 
 ### 3. Navigate to Stock Management
