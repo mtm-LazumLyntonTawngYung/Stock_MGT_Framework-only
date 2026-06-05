@@ -40,7 +40,6 @@ Active ဖြစ်သော member များ Inactive ဖြစ်သော 
 | အခြေအနေ | တုံ့ပြန်ချက် |
 |---|---|
 | မိမိ login ၀င်ထားသောအကောင့်ကို ဖျက်မိပါက | "You cannot delete your own account.
-e" toast error |
 | password field empty ဖြစ်လျှင် | "Please fill out this field"  |
 | email format   | "please include an @ in the email address" မက်ဆေ့ချ် ပြသည် |
 | User create success/unsuccess ဖြစ် လျှင် message ပြရန် | "User created successfully/ User Creation Failed" |
